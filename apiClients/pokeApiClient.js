@@ -6,14 +6,16 @@ const pokeApiClient = axios.create({
 	headers: { "Content-Type": "application/json" },
 });
 
-async function getPokemonInformation(endpoint) {
-	try {
-		const response = await pokeApiClient.get(endpoint);
-		return response.data;
-	} catch (error) {
-		console.error("Error fetching data:", error);
-		throw error;
+class PokeApi {
+	static async getPokemonInformation(endpoint) {
+		try {
+			const response = await pokeApiClient.get(endpoint);
+			return response.data;
+		} catch (error) {
+			console.error(`Error fetching data from ${endpoint}:`, error);
+			throw error;
+		}
 	}
 }
 
-module.exports = { getPokemonInformation };
+module.exports = PokeApi;
