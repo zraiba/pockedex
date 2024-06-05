@@ -11,7 +11,7 @@ router.get(
 
 router.get(
 	"/api/v1/pokemon/translated/:pokemonName",
-	PokedexController.getTransaltedPokemonDescription
+	PokedexController.getTranslatedPokemonDescription
 );
 
 module.exports = { router };
