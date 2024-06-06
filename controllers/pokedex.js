@@ -6,12 +6,6 @@ const PokedexController = {
 	getPokemonInformation: async (req, res) => {
 		const { pokemonName } = req.params;
 
-		if (!pokemonName) {
-			return res
-				.status(400)
-				.json({ error: "Pokemon name parameter is required" });
-		}
-
 		try {
 			const pokeInfo = await PokeApi.getPokemonInformation(
 				`pokemon-species/${pokemonName}`
@@ -27,12 +21,6 @@ const PokedexController = {
 
 	getTranslatedPokemonDescription: async (req, res) => {
 		const { pokemonName } = req.params;
-
-		if (!pokemonName) {
-			return res
-				.status(400)
-				.json({ error: "Pokemon name parameter is required" });
-		}
 
 		try {
 			const pokeInfo = await PokeApi.getPokemonInformation(
