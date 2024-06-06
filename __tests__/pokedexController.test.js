@@ -60,31 +60,27 @@ describe("PokedexController", () => {
 	});
 
 	describe("getTranslatedPokemonDescription", () => {
-		it("should return 404 if pokemonName is not provided", async () => {
-			const res = await request(app).get("/pokemon/translated/");
+		it("should return translated pokemon description (Shakespear)", async () => {
+			const mockPokemonData = {
+				name: "pikachu",
+				description:
+					"When several of these pokémon gather, their electricity could build and cause lightning storms.",
+				habitat: "forest",
+				isLegendary: false,
+			};
+			PokeApi.getPokemonInformation.mockResolvedValue(mockPokemonData);
+			filterPokemonFields.mockReturnValue(mockPokemonData);
+			FunTranslatorApi.getFunTranslation.mockResolvedValue(
+				"At which hour several of these pokémon gather, their electricity couldst buildeth and cause lightning storms"
+			);
 
-			expect(res.status).toBe(404);
+			const res = await request(app).get("/pokemon/translated/pikachu");
+
+			expect(res.status).toBe(200);
+			expect(res.body.description).toBe(
+				"At which hour several of these pokémon gather, their electricity couldst buildeth and cause lightning storms"
+			);
 		});
-
-			it("should return translated pokemon description (Shakespear)", async () => {
-				const mockPokemonData = {
-					name: "pikachu",
-					description:
-						"When several of these pokémon gather, their electricity could build and cause lightning storms.",
-					habitat: "forest",
-					isLegendary: false,
-				};
-				PokeApi.getPokemonInformation.mockResolvedValue(mockPokemonData);
-				filterPokemonFields.mockReturnValue(mockPokemonData);
-				FunTranslatorApi.getFunTranslation.mockResolvedValue(
-					"At which hour several of these pokémon gather, their electricity couldst buildeth and cause lightning storms"
-				);
-
-				const res = await request(app).get("/pokemon/translated/pikachu");
-
-				expect(res.status).toBe(200);
-				expect(res.body.description).toBe("At which hour several of these pokémon gather, their electricity couldst buildeth and cause lightning storms");
-			});
 
 		it("should return translated pokemon description (Yoda)", async () => {
 			const mockPokemonData = {
@@ -103,7 +99,27 @@ describe("PokedexController", () => {
 			const res = await request(app).get("/pokemon/translated/pikachu");
 
 			expect(res.status).toBe(200);
-			expect(res.body.description).toBe("When several of these pokémon gather,And cause lightning storms, their electricity could build.");
+			expect(res.body.description).toBe(
+				"When several of these pokémon gather,And cause lightning storms, their electricity could build."
+			);
+		});
+
+		it("should return 500 if description is not provided", async () => {
+			const mockPokemonData = {
+				name: "mewtwo",
+				description: null,
+				habitat: "forest",
+				isLegendary: true,
+			};
+			PokeApi.getPokemonInformation.mockResolvedValue(mockPokemonData);
+			filterPokemonFields.mockReturnValue(mockPokemonData);
+			FunTranslatorApi.getFunTranslation.mockResolvedValue(
+				"When several of these pokémon gather,And cause lightning storms, their electricity could build."
+			);
+
+			const res = await request(app).get("/pokemon/translated/pikachu");
+
+			expect(res.status).toBe(500);
 		});
 
 		it("should handle translation API rate limit error", async () => {
@@ -123,7 +139,9 @@ describe("PokedexController", () => {
 			const res = await request(app).get("/pokemon/translated/pikachu");
 
 			expect(res.status).toBe(200);
-			expect(res.body.description).toBe("When several of these pokémon gather, their electricity could build and cause lightning storms.");
+			expect(res.body.description).toBe(
+				"When several of these pokémon gather, their electricity could build and cause lightning storms."
+			);
 		});
 
 		it("should handle other errors", async () => {
