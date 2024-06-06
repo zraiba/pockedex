@@ -1,8 +1,8 @@
 // __tests__/FunTranslatorApi.test.js
 
-jest.mock("axios");
 const axios = require("axios");
 const FunTranslatorApi = require("../apiClients/funTranslationApiClient.js");
+jest.mock("axios");
 
 describe("FunTranslatorApi", () => {
 	describe("getFunTranslation", () => {

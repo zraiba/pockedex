@@ -1,42 +1,28 @@
-// __tests__/PokeApi.test.js
+const axios = require('axios');
+const PokeApi = require('../apiClients/pokeApiClient');
 
-const axios = require("axios");
-const PokeApi = require("../apiClients/pokeApiClient.js");
-const MockAdapter = require("axios-mock-adapter");
-const mock = new MockAdapter(axios);
+jest.mock('axios');
 
-describe("PokeApi", () => {
-	describe("getPokemonInformation", () => {
-		it("should return data when API call is successful", async () => {
-			const mandatoryFields = [
-				"name",
-				"flavor_text_entries",
-				"is_legendary",
-				"habitat",
-			];
-			const mockResponse = { data: mockData };
+describe('PokeApi', () => {
+  describe('getPokemonInformation', () => {
+    it('should return data when API call is successful', async () => {
+      const mockData = { name: 'bulbasaur', id: 1 };
 
-			mock
-				.onGet("https://pokeapi.co/api/v2/pokemon-species/bulbasaur")
-				.reply(200, mockResponse);
+      axios.get.mockResolvedValueOnce({ data: mockData });
 
-			const result = await PokeApi.getPokemonInformation(
-				"pokemon-species/bulbasaur"
-			);
+      const result = await PokeApi.getPokemonInformation('/pokemon-species/bulbasaur');
 
-			for (const field in mandatoryFields) {
-				expect(result).toHaveProperty(field);
-			}
-		});
+      expect(result).toEqual(mockData);
+      expect(axios.get).toHaveBeenCalledWith('/pokemon-species/bulbasaur');
+    });
 
-		it("should throw an error when API call fails", async () => {
-			const mockError = new Error("Network error");
+    it('should throw an error when API call fails', async () => {
+      const mockError = new Error('Network error');
 
-			axios.get.mockRejectedValue(mockError);
+      axios.get.mockRejectedValueOnce(mockError);
 
-			await expect(
-				PokeApi.getPokemonInformation("pokemon-species/bulbasaur")
-			).rejects.toThrow("Network error");
-		});
-	});
+      await expect(PokeApi.getPokemonInformation('/pokemon-species/bulbasaur')).rejects.toThrow('Network error');
+      expect(axios.get).toHaveBeenCalledWith('/pokemon-species/bulbasaur');
+    });
+  });
 });
