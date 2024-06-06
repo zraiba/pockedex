@@ -29,8 +29,7 @@ describe("PokedexController", () => {
 		it("should return 404 if pokemonName is not provided", async () => {
 			const res = await request(app).get("/pokemon/");
 
-			expect(res.status).toBe(400);
-			expect(res.body.error).toBe("Pokemon name parameter is required");
+			expect(res.status).toBe(404);
 		});
 
 		it("should return pokemon information", async () => {
@@ -61,37 +60,58 @@ describe("PokedexController", () => {
 	});
 
 	describe("getTranslatedPokemonDescription", () => {
-		it("should return 400 if pokemonName is not provided", async () => {
-			const res = await request(app).get("/pokemon//translated");
+		it("should return 404 if pokemonName is not provided", async () => {
+			const res = await request(app).get("/pokemon/translated/");
 
-			expect(res.status).toBe(400);
-			expect(res.body.error).toBe("Pokemon name parameter is required");
+			expect(res.status).toBe(404);
 		});
 
-		it("should return translated pokemon description", async () => {
+			it("should return translated pokemon description (Shakespear)", async () => {
+				const mockPokemonData = {
+					name: "pikachu",
+					description:
+						"When several of these pokémon gather, their electricity could build and cause lightning storms.",
+					habitat: "forest",
+					isLegendary: false,
+				};
+				PokeApi.getPokemonInformation.mockResolvedValue(mockPokemonData);
+				filterPokemonFields.mockReturnValue(mockPokemonData);
+				FunTranslatorApi.getFunTranslation.mockResolvedValue(
+					"At which hour several of these pokémon gather, their electricity couldst buildeth and cause lightning storms"
+				);
+
+				const res = await request(app).get("/pokemon/translated/pikachu");
+
+				expect(res.status).toBe(200);
+				expect(res.body.description).toBe("At which hour several of these pokémon gather, their electricity couldst buildeth and cause lightning storms");
+			});
+
+		it("should return translated pokemon description (Yoda)", async () => {
 			const mockPokemonData = {
-				name: "pikachu",
+				name: "mewtwo",
 				description:
-					"When several of\nthese POKéMON\ngather, their\felectricity could\nbuild and cause\nlightning storms.",
+					"When several of these pokémon gather, their electricity could build and cause lightning storms.",
 				habitat: "forest",
-				isLegendary: false,
+				isLegendary: true,
 			};
 			PokeApi.getPokemonInformation.mockResolvedValue(mockPokemonData);
 			filterPokemonFields.mockReturnValue(mockPokemonData);
 			FunTranslatorApi.getFunTranslation.mockResolvedValue(
-				"translated description"
+				"When several of these pokémon gather,And cause lightning storms, their electricity could build."
 			);
 
-			const res = await request(app).get("/pokemon/pikachu/translated");
+			const res = await request(app).get("/pokemon/translated/pikachu");
 
 			expect(res.status).toBe(200);
-			expect(res.body.description).toBe("translated description");
+			expect(res.body.description).toBe("When several of these pokémon gather,And cause lightning storms, their electricity could build.");
 		});
 
 		it("should handle translation API rate limit error", async () => {
 			const mockPokemonData = {
-				name: "pikachu",
-				description: "electric mouse",
+				name: "mewtwo",
+				description:
+					"When several of these pokémon gather, their electricity could build and cause lightning storms.",
+				habitat: "forest",
 				isLegendary: true,
 			};
 			PokeApi.getPokemonInformation.mockResolvedValue(mockPokemonData);
@@ -100,16 +120,16 @@ describe("PokedexController", () => {
 				response: { status: 429 },
 			});
 
-			const res = await request(app).get("/pokemon/pikachu/translated");
+			const res = await request(app).get("/pokemon/translated/pikachu");
 
 			expect(res.status).toBe(200);
-			expect(res.body.description).toBe("electric mouse");
+			expect(res.body.description).toBe("When several of these pokémon gather, their electricity could build and cause lightning storms.");
 		});
 
 		it("should handle other errors", async () => {
 			PokeApi.getPokemonInformation.mockRejectedValue(new Error("API error"));
 
-			const res = await request(app).get("/pokemon/pikachu/translated");
+			const res = await request(app).get("/pokemon/translated/pikachu");
 
 			expect(res.status).toBe(500);
 			expect(res.body.error).toBe(
