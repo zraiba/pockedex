@@ -14,7 +14,7 @@ const PokedexController = {
 
 			res.json(pokemonData);
 		} catch (error) {
-			console.error(`Error fetching Pokemon information: ${error.message}`);
+			console.error(`Error fetching Pokemon information: ${error.status}`);
 			res.status(500).json({ error: "Failed to fetch Pokemon information" });
 		}
 	},
@@ -29,18 +29,17 @@ const PokedexController = {
 			const pokemonData = filterPokemonFields(pokeInfo);
 
 			if (pokemonData.description) {
-				let translatedDescription = pokemonData.description;
 				let translationType =
 					pokemonData.isLegendary || pokemonData.habitat == "cave"
 						? "yoda.json"
 						: "shakespeare.json";
 
-				translatedDescription = FunTranslatorApi.getFunTranslation(
+				FunTranslatorApi.getFunTranslation(
 					translationType,
 					pokemonData.description
 				)
-					.then(() => {
-						pokemonData.description = translatedDescription;
+					.then((translated) => {
+						pokemonData.description = translated;
 					})
 					.catch((translationError) => {
 						if (
@@ -58,12 +57,14 @@ const PokedexController = {
 
 			res.json(pokemonData);
 		} catch (error) {
-			console.error(
-				`Error fetching or translating Pokemon description: ${error.message}`
-			);
-			res
-				.status(500)
-				.json({ error: "Failed to fetch or translate Pokemon description" });
+			if (error.response && error.response.status === 404) {
+				res.status(404).json({ error: "Pokemon not found" });
+			} else {
+				console.error(
+					`Error fetching or translating Pokemon description: ${error.message}`
+				);
+				res.status(500).json({ error: "Failed to fetch or translate Pokemon description" });
+			}
 		}
 	},
 };
