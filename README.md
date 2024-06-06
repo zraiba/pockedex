@@ -13,13 +13,13 @@
 
 To install the project dependencies, run:
 
-npm install
+- npm install
 
 ## Usage
 
 To run the project locally, execute:
 
-npm start
+- npm start
 
 This will start the server, and you can access it at \`http://localhost:3000\`.
 
@@ -29,13 +29,13 @@ This will start the server, and you can access it at \`http://localhost:3000\`.
 
 To build the Docker image, use the following command:
 
-docker build -t pokedex:1.0 .
+- docker build -t pokedex:1.0 .
 
 ### Running the Docker container
 
 After building the Docker image, you can run it with:
 
-docker run -p 3000:3000 pokedex:1.0
+- docker run -p 3000:3000 pokedex:1.0
 
 This will start the container and expose the application on port 3000.
 
@@ -43,7 +43,7 @@ This will start the container and expose the application on port 3000.
 
 [Jest](https://jestjs.io/) is used for testing. To run tests, execute:
 
-npm test -t 'PokedexController'
+- npm test -t 'PokedexController'
 
 This will run all the tests in your project.
 
