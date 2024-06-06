@@ -13,7 +13,7 @@ class FunTranslatorApi {
 				text: dataToTranslate,
 			});
 
-			if (response.data.success && response.data.success.total) {
+			if (response.data.success && response.data.success.total > 0) {
 				return response.data.contents.translated;
 			} else {
 				throw new Error("Error during translation");
