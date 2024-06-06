@@ -1,26 +1,39 @@
 const axios = require("axios");
 
+const BASE_URL = "https://api.funtranslations.com/translate/";
+const TIMEOUT = 10000;
+
 const funTranslationApiClient = axios.create({
-	baseURL: "https://api.funtranslations.com/translate/",
-	timeout: 10000,
+	baseURL: BASE_URL,
+	timeout: TIMEOUT,
 	headers: { "Content-Type": "application/json" },
 });
 
 class FunTranslatorApi {
-	static async getFunTranslation(endpoint, dataToTranslate) {
-		try {
-			const response = await funTranslationApiClient.post(endpoint, {
-				text: dataToTranslate,
-			});
+	static async getFunTranslation(endpoint, text) {
+		if (!endpoint) {
+			throw new Error("Endpoint parameter is required");
+		}
 
-			if (response.data.success && response.data.success.total > 0) {
-				return response.data.contents.translated;
+		if (!text) {
+			throw new Error("Text parameter is required for translation");
+		}
+
+		try {
+			const response = await funTranslationApiClient.post(endpoint, { text });
+
+			const success = response.data?.success?.total ?? 0;
+			const translatedText = response.data?.contents?.translated ?? "";
+
+			if (success > 0) {
+				return translatedText;
 			} else {
-				throw new Error("Error during translation");
+				throw new Error("Translation failed with no success response");
 			}
 		} catch (error) {
-			console.error(`Error fetching data from ${endpoint}:`, error);
-			throw error;
+			const errorMessage = `Error fetching data from ${endpoint}: ${error.message}`;
+			console.error(errorMessage, error);
+			throw new Error(errorMessage);
 		}
 	}
 }
